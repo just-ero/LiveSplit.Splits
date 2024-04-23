@@ -14,14 +14,20 @@ namespace LiveSplit.TimeFormatters
         }
         public string Format(TimeSpan? time)
         {
-            var deltaTime = new DeltaTimeFormatter();
-            deltaTime.Accuracy = Accuracy;
-            deltaTime.DropDecimals = DropDecimals;
+            var deltaTime = new DeltaTimeFormatter
+            {
+                Accuracy = Accuracy,
+                DropDecimals = DropDecimals
+            };
             var formattedTime = deltaTime.Format(time);
             if (time == null)
+            {
                 return TimeFormatConstants.DASH;
+            }
             else
+            {
                 return formattedTime;
+            }
         }
     }
 }

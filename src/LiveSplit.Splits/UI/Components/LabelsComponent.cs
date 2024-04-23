@@ -1,11 +1,12 @@
-﻿using LiveSplit.Model;
-using LiveSplit.TimeFormatters;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+
+using LiveSplit.Model;
 using LiveSplit.Model.Comparisons;
+using LiveSplit.TimeFormatters;
 
 namespace LiveSplit.UI.Components
 {
@@ -62,9 +63,11 @@ namespace LiveSplit.UI.Components
         private void DrawGeneral(Graphics g, LiveSplitState state, float width, float height, LayoutMode mode)
         {
             if (Settings.BackgroundGradient == ExtendedGradientType.Alternating)
+            {
                 g.FillRectangle(new SolidBrush(
                     Settings.BackgroundColor
                     ), 0, 0, width, height);
+            }
 
             MeasureTimeLabel.Text = TimeFormatter.Format(new TimeSpan(24, 0, 0));
             MeasureDeltaLabel.Text = DeltaTimeFormatter.Format(new TimeSpan(0, 9, 0, 0));
@@ -82,6 +85,7 @@ namespace LiveSplit.UI.Components
                 TimeFormatter = new RegularSplitTimeFormatter(Settings.SplitTimesAccuracy);
                 CurrentAccuracy = Settings.SplitTimesAccuracy;
             }
+
             if (Settings.DeltasAccuracy != CurrentDeltaAccuracy || Settings.DropDecimals != CurrentDropDecimals)
             {
                 DeltaTimeFormatter = new DeltaSplitTimeFormatter(Settings.DeltasAccuracy, Settings.DropDecimals);
@@ -96,6 +100,7 @@ namespace LiveSplit.UI.Components
                 label.Y = 0;
                 label.Height = height;
             }
+
             MinimumWidth = 10f;
 
             if (ColumnsList.Count() == LabelsList.Count)
@@ -107,11 +112,18 @@ namespace LiveSplit.UI.Components
 
                     var labelWidth = 0f;
                     if (column.Type == ColumnType.DeltaorSplitTime || column.Type == ColumnType.SegmentDeltaorSegmentTime)
+                    {
                         labelWidth = Math.Max(MeasureDeltaLabel.ActualWidth, MeasureTimeLabel.ActualWidth);
+                    }
                     else if (column.Type == ColumnType.Delta || column.Type == ColumnType.SegmentDelta)
+                    {
                         labelWidth = MeasureDeltaLabel.ActualWidth;
+                    }
                     else
+                    {
                         labelWidth = MeasureTimeLabel.ActualWidth;
+                    }
+
                     curX -= labelWidth + 5;
                     label.Width = labelWidth;
                     label.X = curX + 5;
@@ -145,7 +157,6 @@ namespace LiveSplit.UI.Components
             throw new NotSupportedException();
         }
 
-
         public System.Xml.XmlNode GetSettings(System.Xml.XmlDocument document)
         {
             throw new NotSupportedException();
@@ -178,10 +189,15 @@ namespace LiveSplit.UI.Components
             foreach (var label in LabelsList)
             {
                 var column = ColumnsList.ElementAt(LabelsList.IndexOf(label));
-                if (String.IsNullOrEmpty(column.Name))
+                if (string.IsNullOrEmpty(column.Name))
+                {
                     label.Text = CompositeComparisons.GetShortComparisonName(column.Comparison == "Current Comparison" ? state.CurrentComparison : column.Comparison);
+                }
                 else
+                {
                     label.Text = column.Name;
+                }
+
                 label.ForeColor = Settings.LabelsColor;
             }
         }
@@ -194,27 +210,29 @@ namespace LiveSplit.UI.Components
                 foreach (var column in ColumnsList)
                 {
                     LabelsList.Add(new SimpleLabel()
-                        {
-                            HorizontalAlignment = StringAlignment.Far,
-                            VerticalAlignment = StringAlignment.Center
-                        });
+                    {
+                        HorizontalAlignment = StringAlignment.Far,
+                        VerticalAlignment = StringAlignment.Center
+                    });
                 }
             }
         }
 
         public void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode)
         {
-                UpdateAll(state);
+            UpdateAll(state);
 
-                Cache.Restart();
-                Cache["ColumnsCount"] = ColumnsList.Count();
-                foreach (var label in LabelsList)
-                    Cache["Columns" + LabelsList.IndexOf(label) + "Text"] = label.Text;
+            Cache.Restart();
+            Cache["ColumnsCount"] = ColumnsList.Count();
+            foreach (var label in LabelsList)
+            {
+                Cache["Columns" + LabelsList.IndexOf(label) + "Text"] = label.Text;
+            }
 
-                if (invalidator != null && (Cache.HasChanged || FrameCount > 1))
-                {
-                    invalidator.Invalidate(0, 0, width, height);
-                }
+            if (invalidator != null && (Cache.HasChanged || FrameCount > 1))
+            {
+                invalidator.Invalidate(0, 0, width, height);
+            }
         }
 
         public void Dispose()
